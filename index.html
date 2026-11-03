@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>깃발 달기 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: 슬라이드의 실습시트 표(원문 | 밑줄 친 핵심 구절 | 1차 코드)를 그대로 옮긴 작업대. 상단 단계 탭, 본문은 단위별 행. */
+:root{
+  --paper:#fbfaf8; --panel:#ffffff; --cream:#f6f1e4; --ink:#26241f; --muted:#6c675e; --line:#e3ded4;
+  --head:#2c2a26; --head-fg:#f7f4ee; --accent:#8e1b3f; --accent-soft:#f6e3ea; --mark:#f3d36b55;
+  --ok:#2f6b4f; --info:#1f5fae;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-text:"Gowun Batang","Nanum Myeongjo","AppleMyungjo",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#18171a; --panel:#211f23; --cream:#29251f; --ink:#ece8e2; --muted:#a39d93; --line:#38343a;
+  --head:#0f0e10; --head-fg:#efebe5; --accent:#e9809f; --accent-soft:#3a2129; --mark:#d9b54a40;
+  --ok:#7cc4a0; --info:#86b4ef; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#18171a; --panel:#211f23; --cream:#29251f; --ink:#ece8e2; --muted:#a39d93; --line:#38343a;
+  --head:#0f0e10; --head-fg:#efebe5; --accent:#e9809f; --accent-soft:#3a2129; --mark:#d9b54a40;
+  --ok:#7cc4a0; --info:#86b4ef; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.eyebrow{font-size:13px;color:var(--muted);letter-spacing:.02em}
+.eyebrow b{color:var(--accent);font-weight:600}
+h1{margin:4px 0 0;font-size:clamp(24px,4vw,34px);line-height:1.2;text-wrap:balance;letter-spacing:-.01em}
+.rq{margin:6px 0 0;font-size:14px}
+.rq b{margin-right:8px}
+nav.steps{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 20px}
+nav.steps button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+nav.steps button .n{color:var(--muted);margin-right:6px;font-variant-numeric:tabular-nums}
+nav.steps button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+nav.steps button[aria-selected="true"] .n{color:#fff;opacity:.8}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.w:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h2{font-size:22px;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 16px;max-width:70ch}
+.howto{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 14px;color:var(--accent);font-weight:600;font-size:15px}
+.btn{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.toolbar .spacer{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;border:0;background:var(--panel);color:var(--ink);padding:7px 12px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.hint{font-size:13px;color:var(--muted)}
+/* 실습시트 표 */
+.sheet{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel)}
+.sheet-head{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);background:var(--head);color:var(--head-fg);font-weight:600;font-size:14px;text-align:center}
+.sheet-head>div{padding:10px 12px}
+.sheet-head>div+div{border-left:1px solid #ffffff22}
+.sheet-head small{display:block;font-weight:400;opacity:.75;font-size:12px}
+.who{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--accent);font-weight:700;font-size:14px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.who span{color:var(--muted);font-weight:400;font-size:13px}
+.row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.u-text{padding:14px 16px;font-family:var(--f-text);font-size:17px;line-height:2.05}
+.u-work{padding:12px 14px;background:var(--cream);border-left:1px solid var(--line);display:flex;flex-direction:column;gap:8px;min-width:0}
+.num{font-family:var(--f-body);color:var(--accent);font-weight:600;margin-right:4px}
+.w{cursor:pointer;border-radius:2px;padding:1px 0;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.w:hover{background:var(--mark)}
+.w.ul{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:5px;font-weight:700;background:var(--mark)}
+.cut{font-family:var(--f-body);color:var(--accent);font-weight:700;margin-left:4px;background:none;border:0;padding:0 2px;font-size:17px;cursor:default}
+.gap{display:none}
+.cutmode .gap{display:inline-block;width:14px;height:22px;margin:0 1px;vertical-align:middle;border:1px dashed var(--accent);border-radius:3px;background:transparent;cursor:pointer;padding:0}
+.cutmode .gap:hover{background:var(--accent-soft)}
+.cutmode .cut{cursor:pointer;text-decoration:underline dotted}
+.cutmode .w{cursor:text}
+.lbl{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.phrase{font-size:14px;min-height:22px}
+.phrase.empty{color:var(--muted);font-style:italic}
+.code-line{display:flex;gap:6px}
+.code-line input{flex:1;min-width:0}
+input[type=text],textarea,select{font:inherit;font-size:15px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%}
+textarea{resize:vertical;min-height:58px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:2px 8px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+details.memo summary{font-size:13px;color:var(--muted);cursor:pointer}
+details.memo textarea{margin-top:6px}
+.small-btn{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:4px 8px;cursor:pointer;white-space:nowrap}
+.callout{border-left:3px solid var(--accent);background:var(--panel);padding:10px 14px;margin:14px 0;font-size:14px;max-width:80ch}
+/* 워밍업 */
+.warm{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px}
+.quote{font-family:var(--f-text);font-size:18px;line-height:1.9;background:var(--panel);border:1px solid var(--line);padding:18px 20px;border-radius:4px}
+.quote .ctx{color:var(--muted)}
+.quote b{font-weight:700;background:var(--mark)}
+.quote cite{display:block;margin-top:10px;font-family:var(--f-body);font-style:normal;font-size:12px;color:var(--muted);line-height:1.5}
+.ladder{display:flex;flex-direction:column;gap:12px}
+.rung{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
+.rung h3{margin:0 0 6px;font-size:14px}
+.rung h3 .sym{color:var(--accent);margin-right:6px}
+/* 묶기 */
+.groups{display:grid;gap:16px}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px}
+.gcard h3{margin:0 0 8px;font-size:16px}
+.gcard h3 span{color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
+.codelist{display:flex;flex-direction:column;gap:4px;font-size:14px;margin:0;padding:0;list-style:none}
+.codelist li{padding:4px 8px;background:var(--cream);border-radius:4px}
+.codelist li.none{background:none;color:var(--muted);font-style:italic;padding:0}
+.gform{display:flex;flex-direction:column;gap:8px}
+/* 게시판 */
+.board-unit{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-bottom:10px}
+.board-unit .src{font-family:var(--f-text);font-size:15px;color:var(--muted);margin-bottom:8px}
+.names{display:flex;flex-wrap:wrap;gap:6px}
+.name{background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:14px}
+.name small{color:var(--muted);margin-left:6px;font-size:11px}
+.name.me{border-color:var(--accent)}
+.bundles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.bundle{border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.bundle.me{border-color:var(--accent)}
+.bundle .why{margin:0;font-size:13px;color:var(--muted)}
+.status{font-size:13px;padding:8px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);margin-bottom:12px}
+.share-box{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:right;line-height:1.7}
+.inline-confirm{display:inline-flex;gap:6px;align-items:center;font-size:13px}
+@media (max-width:760px){
+  .sheet-head{display:none}
+  .row{grid-template-columns:1fr}
+  .u-work{border-left:0;border-top:1px dashed var(--line)}
+  .warm,.gcard{grid-template-columns:1fr}
+  .u-text{font-size:16px}
+}
+/* 이름 고르기 */
+.gate{max-width:760px;display:flex;flex-direction:column;gap:14px}
+.gate h2,.gate .lede{margin-bottom:0}
+.roster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:4px;max-width:360px}
+.roster button{font:inherit;font-size:16px;padding:12px 8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;cursor:pointer}
+.roster button:hover{border-color:var(--accent);color:var(--accent)}
+.me-chip{display:flex;align-items:center;gap:8px;font-size:14px}
+.me-chip b{color:var(--accent)}
+.next-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+@media (prefers-reduced-motion:no-preference){.w{transition:background .12s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">질적 자료의 분석 · <b>1차 코딩 실습 · 2차 코딩 실습(하위주제로 묶기)</b></div>
+      <h1>깃발 달기 실습실</h1>
+      <p class="rq"><b>연구질문</b>은퇴 후 사회참여 과정의 경험은 어떠한가?</p>
+    </div>
+    <div class="me-chip" id="me" hidden></div>
+  </header>
+
+  <nav class="steps" role="tablist" id="tabs" hidden>
+    <button role="tab" data-tab="warm"><span class="n">1</span>같은 문장, 다른 이름</button>
+    <button role="tab" data-tab="practice"><span class="n">2</span>1차 코딩 실습</button>
+    <button role="tab" data-tab="group"><span class="n">3</span>2차 코딩 실습(하위주제로 묶기)</button>
+    <button role="tab" data-tab="board"><span class="n">4</span>모두의 코드 비교</button>
+  </nav>
+
+  <main id="view"></main>
+
+  <footer>
+    출처: 정순둘·김고은·최성문(2023), 「은퇴한 중장년층의 사회참여 과정: 의미와 전략의 재발견」, 『노인복지연구』 78(2), 135–173.<br>
+    원문은 포커스그룹 면담 발췌이며, 끊기·밑줄·번호와 코드는 수업용 풀이 예시입니다. 코드 이름은 사람마다 달라질 수 있습니다.
+  </footer>
+</div>
+
+<script>
+const CIRC = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
+const STRATS = ["구조적","기술적","내성(In vivo)","과정적","감정","대립","주제화"];
+const THEMES = [
+  ["1. 마음은 이팔청춘인 나의 은퇴: 걱정과 기대의 공존",["벌써 와버린 은퇴에 대한 두려움과 후회","아무것도 하지 않고 사는 삶의 괴로움","애매한 중년과 노년 사이, 다시 20대와 같은 심정","일을 하며 진정한 나를 찾아 살고 싶음"]],
+  ["2. 생각보다 쉽지 않은 사회진입의 장벽",["역시 나이가 장애물","지금까지 쌓아온 연륜을 인정해주지 않음","새로운 관계, 시도에 대한 부담","여전히 계속되는 가족돌봄"]],
+  ["3. 한번 더 힘을 내보는 인생 2막",["은퇴는 끝이 아닌 새로운 시작","새로움에 대한 거부보다는 기대로 다가섬","매일을 건강하게 사려는 노력","적극적으로 찾아나서는 일상"]],
+  ["4. 뚜렷한 바램을 충족시키는 사회활동 탐색",["나와 잘 맞는 사람들과 함께 하는 것이 필요함","단순 친목이 아닌 목적이 중요해진 나의 모임","활동에 따른 금전적 보상이 중요함","나의 가치를 인정해 주는 것이 가장 큰 이득임"]],
+  ["5. 나에게 맞는 다양한 길의 새로운 도전과 한계",["내가 쌓아온 능력을 활용할 수 있는 전문활동","새롭게 시작하는 제2의 직업세계","고민하고 찾아도 중년이 할 일은 많지 않음","열심히 돈주고 배웠는데 자원봉사만 요구함"]],
+  ["6. 새로운 시작을 위해 필요한 사회적 지원",["시작의 발판 마련을 위한 다양한 정보를 얻고 싶음","막막한 앞길을 비춰줄 조언가나 롤모델이 필요함","나의 능력을 활용할 수 있는 다양한 장(場)을 희망함"]],
+];
+const SAMPLES = [
+  {id:"s3",label:"샘플 3",who:"참여자 I",page:"158쪽",
+   units:["저는 제가 그러면은 아무것도 안하고 그냥 가만히 늙어 죽으란 말이냐?’ 이런 생각이 들어요.",
+     "그러면 거기에 맞는, 거기에 맞는 보수의 일자리를 줘야하지 않는가~",
+     "제가 지금 애들 구연동화를 많이 했기 때문에 이야기 할머니를 하려고 여기저기 도서관에 다니면서 서류를 내봤더니",
+     "면접도 보기 전에 서류로 다 잘리더라구요.",
+     "제가 포기를 했어요. 직장 구할 생각 않고, 그냥 취미생활을 해야겠다 해서."]},
+];
+// 단어 단위로 쪼개고, 기본 끊기 위치(원문의 /)와 끊을 수 있는 자리(문장부호 뒤)를 계산
+for(const s of SAMPLES){
+  s.words=[];s.defaultCuts=[];s.unitStarts=[];
+  s.units.forEach((u,ui)=>{s.unitStarts.push(s.words.length);u.split(/\s+/).forEach(t=>s.words.push({t,du:ui}));if(ui<s.units.length-1)s.defaultCuts.push(s.words.length-1)});
+  s.eligible=new Set(s.words.map((w,i)=>/[.?!~,)’]$/.test(w.t)?i:-1).filter(i=>i>=0&&i<s.words.length-1));
+  s.defaultCuts.forEach(i=>s.eligible.add(i));
+}
+const byId=Object.fromEntries(SAMPLES.map(s=>[s.id,s]));
+
+// ---------- 참여자 명단 (2조 제외) : 이름만 고치면 됩니다 ----------
+const GROUPS = [
+  ["1조",["송민진","안희영"]],
+  ["3조",["박성경","이소정"]],
+  ["4조",["김예원","정다현"]],
+  ["5조",["권서영","임주형"]],
+  ["6조",["이시후","현승빈"]],
+];
+const ROSTER = GROUPS.flatMap(([,names])=>names);
+
+// ---------- 상태 (이 브라우저에만 저장) ----------
+const KEY="flag-coding-lab-site-v1";
+function blank(){const st={me:"",warm:{code:""},mode:"ul",s:{}};for(const s of SAMPLES)st.s[s.id]={cuts:[...s.defaultCuts],ul:[],codes:{},sub:"",why:""};return st}
+let state=blank();
+try{const raw=localStorage.getItem(KEY);if(raw){const o=JSON.parse(raw);state={...state,...o,warm:{...state.warm,...o.warm},s:{s3:{...state.s.s3,...(o.s&&o.s.s3)}}}}}catch(e){}
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}},250)}
+
+const $=(sel,el=document)=>el.querySelector(sel);
+function h(tag,attrs={},...kids){const el=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(v==null||v===false)continue;if(k==="class")el.className=v;else if(k.startsWith("on"))el.addEventListener(k.slice(2),v);else if(k==="text")el.textContent=v;else el.setAttribute(k,v===true?"":v)}for(const c of kids.flat()){if(c==null||c===false)continue;el.append(c.nodeType?c:document.createTextNode(c))}return el}
+
+function unitsOf(sid){const s=byId[sid],cuts=[...state.s[sid].cuts].sort((a,b)=>a-b);const out=[];let st=0;for(const c of cuts){out.push([st,c]);st=c+1}out.push([st,s.words.length-1]);return out}
+function phraseOf(sid,[a,b]){const ul=new Set(state.s[sid].ul);const runs=[];let cur=[];for(let i=a;i<=b;i++){if(ul.has(i))cur.push(byId[sid].words[i].t);else if(cur.length){runs.push(cur.join(" "));cur=[]}}if(cur.length)runs.push(cur.join(" "));return runs.join(" … ")}
+function codeOf(sid,start){return state.s[sid].codes[start]||{code:"",strat:[],memo:""}}
+function setCode(sid,start,patch){state.s[sid].codes[start]={...codeOf(sid,start),...patch};save()}
+// 기본 단위 k의 첫 단어가 들어 있는, 내가 끊은 단위
+function myUnitFor(sid,k){const w=byId[sid].unitStarts[k];return unitsOf(sid).find(([a,b])=>w>=a&&w<=b)}
+
+// ---------- 탭 ----------
+const TABS=["warm","practice","group","board"];
+let tab=TABS.includes(location.hash.slice(1))?location.hash.slice(1):"warm";
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render();window.scrollTo({top:0})}});
+function render(){
+  const v=$("#view"),me=$("#me");
+  if(!state.me||!ROSTER.includes(state.me)){
+    $("#tabs").hidden=true;me.hidden=true;stopPoll();v.replaceChildren(viewGate());return;
+  }
+  $("#tabs").hidden=false;me.hidden=false;
+  me.replaceChildren(h("span",{},h("b",{},state.me)," 님"),h("button",{class:"small-btn",onclick:()=>{state.me="";save();render()}},"이름 바꾸기"));
+  for(const b of document.querySelectorAll("[data-tab]"))b.setAttribute("aria-selected",String(b.dataset.tab===tab));
+  if(tab==="board")startPoll();else stopPoll();
+  v.replaceChildren(({warm:viewWarm,practice:viewPractice,group:viewGroup,board:viewBoard})[tab]());
+}
+function viewGate(){
+  return h("section",{class:"gate"},
+    h("h2",{},"내 이름을 눌러 들어오세요"),
+    h("p",{class:"lede"},"고른 이름은 ‘모두의 코드 비교’ 게시판에 표시됩니다. 작업 내용은 이 기기의 브라우저에 저장되니, 한 사람이 기기 하나로 들어옵니다."),
+    GROUPS.map(([g,names])=>h("div",{class:"team"},h("div",{class:"lbl"},g),
+      h("div",{class:"roster"},names.map(n=>h("button",{onclick:()=>{state.me=n;save();tab="warm";render();window.scrollTo({top:0})}},n))))));
+}
+// 단계 끝 버튼: 지금까지 한 것을 올리고 게시판의 해당 화면으로 이동
+function shareAndCompare(view,label){
+  const msg=h("span",{class:"hint",role:"status"});
+  const b=h("button",{class:"btn accent",onclick:async()=>{
+    b.disabled=true;msg.textContent="올리는 중…";
+    const ok=await upload(msg);b.disabled=false;
+    if(ok){boardSid=view;tab="board";render();window.scrollTo({top:0})}
+  }},label||"게시판에 올리고 모두와 비교하기 →");
+  return h("div",{class:"next-row"},b,msg);
+}
+
+// ---------- 1. 워밍업 ----------
+function viewWarm(){
+  const w=state.warm;
+  return h("section",{},
+    h("h2",{},"같은 문장, 다른 이름?"),
+    h("p",{class:"lede"},"굵은 문장 하나에 이름을 하나만 붙여 보세요(앞 문장은 맥락). 그다음 옆 사람의 이름과 비교해 봅니다."),
+    h("div",{class:"warm"},
+      h("div",{},
+        h("div",{class:"quote"},h("span",{class:"ctx"},"“똑같은 일을 해도 봉사로 하는 것과 내가 만 원이라도 받으면 책임감이 있는데. 그 책임감이 짐이 될 수도 있지만, 활력이 될 수도 있거든요. 그래서 그런 게 있으면 좋지 않을까… "),
+          h("b",{},"그러면 ‘자기가 살아있다’라는? ‘사람대접을 받는다’라는? 누군가 나를 알아주고, 찾아주고, 인정해주는 그게 있으니까요."),"”",
+          h("cite",{},"참여자 K · 봉사와 유급 활동의 차이를 말하던 중 · 정순둘 외(2023), 156쪽")),
+        h("div",{class:"callout"},"코딩은 객관적인 과학 행위가 아니라 하나의 판단 요청이며, 연구자의 주관성·기질·버릇과도 연결됩니다(Sipe & Ghiso, 2004 재인용). 그래서 그 판단을 다른 사람이 따라올 수 있게 하는 절차와 메모가 필요합니다.")),
+      h("div",{class:"ladder"},
+        h("div",{class:"rung"},h("h3",{},h("span",{class:"sym"},"🚩"),"깃발 · 굵은 문장에 붙인 내 이름"),
+          h("input",{type:"text",id:"warm-code",placeholder:"예: 짧은 이름 하나",value:w.code,oninput:e=>{w.code=e.target.value;save()}})),
+        shareAndCompare("warm"))));
+}
+
+// ---------- 2. 실습 ----------
+let painting=null;
+const stopPaint=()=>{if(painting!=null){painting=null;save()}};
+window.addEventListener("pointerup",stopPaint);window.addEventListener("pointercancel",stopPaint);
+function viewPractice(){
+  const sid="s3",s=byId[sid],ss=state.s[sid];
+  const sheet=h("div",{class:"sheet"+(state.mode==="cut"?" cutmode":"")});
+  const rowsBox=h("div",{});
+  function drawRows(){
+    rowsBox.replaceChildren(...unitsOf(sid).map(([a,b],ui)=>{
+      const c=codeOf(sid,a);
+      const text=h("div",{class:"u-text"},h("span",{class:"num"},CIRC[ui]||`(${ui+1})`));
+      for(let i=a;i<=b;i++){
+        text.append(h("span",{class:"w"+(ss.ul.includes(i)?" ul":""),"data-i":i,tabindex:state.mode==="ul"?"0":null},s.words[i].t));
+        if(i<b){text.append(" ");if(s.eligible.has(i))text.append(h("button",{class:"gap","data-gap":i,"aria-label":"여기서 끊기",title:"여기서 끊기"}));}
+        else if(i<s.words.length-1)text.append(h("button",{class:"cut","data-cut":i,title:state.mode==="cut"?"끊기 지우기(다음 단위와 합치기)":"",tabindex:state.mode==="cut"?"0":"-1"},"/"));
+      }
+      const ph=phraseOf(sid,[a,b]);
+      const phrase=h("div",{class:"phrase"+(ph?"":" empty"),"data-ph":a},ph||"원문에서 근거가 되는 말을 눌러 밑줄을 그으세요");
+      const input=h("input",{type:"text",id:`code-${sid}-${a}`,placeholder:"짧은 이름(1차 코드)",value:c.code,oninput:e=>setCode(sid,a,{code:e.target.value})});
+      const work=h("div",{class:"u-work"},
+        h("div",{},h("div",{class:"lbl"},"밑줄 친 핵심 구절"),phrase),
+        h("div",{},h("div",{class:"lbl"},"1차 코드"),h("div",{class:"code-line"},input,
+          h("button",{class:"small-btn",title:"밑줄 친 말을 그대로 코드로",onclick:()=>{const p=phraseOf(sid,[a,b]).replace(/^[‘’“”'"]+|[‘’“”'".]+$/g,"");if(!p)return;input.value=`“${p}”`;const st=new Set(codeOf(sid,a).strat);st.add("내성(In vivo)");setCode(sid,a,{code:input.value,strat:[...st]});drawRows()}},"인비보로"))),
+        h("div",{class:"chips"},STRATS.map(t=>h("button",{class:"chip","aria-pressed":String(c.strat.includes(t)),onclick:e=>{const st=new Set(codeOf(sid,a).strat);st.has(t)?st.delete(t):st.add(t);setCode(sid,a,{strat:[...st]});e.target.setAttribute("aria-pressed",String(st.has(t)))}},t))),
+        h("details",{class:"memo",open:c.memo?true:null},h("summary",{},"분석적 메모 · 왜 이렇게 이름 붙였나"),
+          h("textarea",{id:`memo-${sid}-${a}`,placeholder:"떠오른 질문, 다른 해석의 가능성, 나의 선입견…",oninput:e=>setCode(sid,a,{memo:e.target.value})},c.memo)));
+      return h("div",{class:"row"},text,work);
+    }));
+  }
+  drawRows();
+  // 밑줄: 누르거나 끌어서 칠하기
+  rowsBox.addEventListener("pointerdown",e=>{
+    if(state.mode!=="ul")return;const w=e.target.closest(".w");if(!w)return;
+    const i=+w.dataset.i;painting=!ss.ul.includes(i);paint(i);e.preventDefault();
+  });
+  rowsBox.addEventListener("pointermove",e=>{if(painting==null)return;const el=document.elementFromPoint(e.clientX,e.clientY);const w=el&&el.closest&&el.closest(".w");if(w&&rowsBox.contains(w))paint(+w.dataset.i)});
+  rowsBox.addEventListener("keydown",e=>{const w=e.target.closest(".w");if(w&&state.mode==="ul"&&(e.key==="Enter"||e.key===" ")){e.preventDefault();const i=+w.dataset.i;painting=!ss.ul.includes(i);paint(i);painting=null;save()}});
+  function paint(i){
+    const has=ss.ul.includes(i);if(painting&&!has)ss.ul.push(i);else if(!painting&&has)ss.ul.splice(ss.ul.indexOf(i),1);else return;
+    const w=rowsBox.querySelector(`.w[data-i="${i}"]`);w.classList.toggle("ul",painting);
+    const u=unitsOf(sid).find(([a,b])=>i>=a&&i<=b);const ph=phraseOf(sid,u);const el=rowsBox.querySelector(`[data-ph="${u[0]}"]`);
+    el.textContent=ph||"원문에서 근거가 되는 말을 눌러 밑줄을 그으세요";el.classList.toggle("empty",!ph);
+  }
+  // 끊기 조정
+  rowsBox.addEventListener("click",e=>{
+    if(state.mode!=="cut")return;
+    const g=e.target.closest("[data-gap]"),c=e.target.closest("[data-cut]");
+    if(g){const i=+g.dataset.gap;if(!ss.cuts.includes(i))ss.cuts.push(i);}
+    else if(c){const i=+c.dataset.cut;ss.cuts=ss.cuts.filter(x=>x!==i);}
+    else return;
+    // 코드는 단위의 첫 단어에 붙어 있으므로, 사라진 단위의 코드는 그대로 두되 화면에서 숨겨짐
+    save();drawRows();
+  });
+
+  const head=h("div",{class:"sheet-head"},h("div",{},"원문",h("small",{},state.mode==="cut"?"점선 칸을 눌러 끊고, / 를 눌러 합칩니다":"근거가 되는 말을 누르거나 끌어서 밑줄")),h("div",{},"밑줄 친 핵심 구절 · 가능한 1차 코드"));
+  sheet.append(head,h("div",{class:"who"},`${s.label} · ${s.who}`,h("span",{},`정순둘 외(2023)${s.page?", "+s.page:""}`)),rowsBox);
+
+  const resetBox=h("span",{});
+  function drawReset(ask){resetBox.replaceChildren(ask?h("span",{class:"inline-confirm"},`${s.label}의 끊기·밑줄·코드를 모두 지울까요?`,
+      h("button",{class:"small-btn",onclick:()=>{state.s[sid]=blank().s[sid];save();render()}},"지우기"),h("button",{class:"small-btn",onclick:()=>drawReset(false)},"취소"))
+    :h("button",{class:"btn",onclick:()=>drawReset(true)},"처음부터"))}
+  drawReset(false);
+
+  return h("section",{},
+    h("h2",{},"1차 코딩 실습: 의미 단위로 끊고 이름 붙이기"),
+    h("div",{class:"howto"},h("span",{},"① 의미 단위는 미리 끊어 둠(/)"),h("span",{},"② 코드의 근거에 밑줄"),h("span",{},"③ 짧은 이름 붙이기")),
+    h("p",{class:"lede"},"끊은 위치에 동의하지 않으면 ‘끊기 조정’으로 바꿔도 됩니다. 단위마다 근거가 되는 말 1~2구절에 밑줄을 긋고, 그 말을 살려 짧게 이름을 붙이세요."),
+    h("div",{class:"toolbar"},
+      h("div",{class:"seg",role:"group","aria-label":"작업 방식"},
+        h("button",{"aria-pressed":String(state.mode==="ul"),onclick:()=>{state.mode="ul";save();render()}},"밑줄 긋기"),
+        h("button",{"aria-pressed":String(state.mode==="cut"),onclick:()=>{state.mode="cut";save();render()}},"끊기 조정")),
+      h("span",{class:"spacer"}),resetBox),
+    sheet,
+    h("div",{class:"toolbar",style:"margin-top:14px"},shareAndCompare("codes"),h("span",{class:"spacer"}),exportBtns()));
+}
+
+// ---------- 내보내기 ----------
+function allRows(){
+  const rows=[["자료","단위","원문","밑줄 친 핵심 구절","1차 코드","코딩 전략","분석적 메모"]];
+  for(const s of SAMPLES)unitsOf(s.id).forEach((u,ui)=>{const c=codeOf(s.id,u[0]);const txt=s.words.slice(u[0],u[1]+1).map(w=>w.t).join(" ");
+    if(c.code||c.memo||phraseOf(s.id,u))rows.push([`${s.label}(${s.who})`,CIRC[ui]||ui+1,txt,phraseOf(s.id,u),c.code,c.strat.join("·"),c.memo])});
+  for(const s of SAMPLES){const g=state.s[s.id];if(g.sub||g.why)rows.push([`${s.label}(${s.who})`,"2차","", "",g.sub,"하위주제",g.why])}
+  if(state.warm.code)rows.push(["참여자 K(워밍업)","","","",state.warm.code,"",""]);
+  return rows;
+}
+function asText(){return allRows().slice(1).map(r=>`[${r[0]} ${r[1]}] ${r[4]||"(코드 없음)"}${r[3]?`  ← “${r[3]}”`:""}${r[6]?`\n   메모: ${r[6]}`:""}`).join("\n")}
+function exportBtns(){
+  const msg=h("span",{class:"hint",role:"status"});
+  return h("span",{style:"display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center"},msg,
+    h("button",{class:"btn",onclick:async()=>{const t=asText();try{await navigator.clipboard.writeText(t);msg.textContent="복사했습니다."}catch(e){const ta=h("textarea",{style:"width:100%;min-height:140px"},t);msg.replaceChildren(ta);ta.select()}}},"결과 복사"),
+    h("button",{class:"btn",onclick:async()=>{
+      const csv="﻿"+allRows().map(r=>r.map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(",")).join("\r\n");
+      const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+      const a=h("a",{href:url,download:`코딩실습_${state.me}.csv`});document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);msg.textContent="CSV 파일을 내려받았습니다."}},"CSV로 저장"));
+}
+
+// ---------- 3. 하위주제로 묶기 ----------
+function viewGroup(){
+  const [themeName,themeSubs]=THEMES[4];
+  return h("section",{},
+    h("h2",{},"2차 코딩 실습: 하위주제로 묶기"),
+    h("p",{class:"lede"},"샘플 3에 내가 붙인 1차 코드를 다시 읽고, 아래 상위주제에 속한 하위주제 4개 가운데 어디에 걸릴지 고른 뒤 함께 묶는 이유를 적어 보세요."),
+    h("div",{class:"callout"},h("strong",{},"상위주제 "+themeName),h("ul",{style:"margin:6px 0 0;padding-left:18px"},themeSubs.map(x=>h("li",{},x)))),
+    h("div",{class:"groups"},[byId.s3].map(s=>{
+      const g=state.s[s.id];
+      const codes=unitsOf(s.id).map((u,ui)=>[ui,codeOf(s.id,u[0]).code]).filter(x=>x[1]);
+      const sel=h("select",{id:`sub-${s.id}`,onchange:e=>{g.sub=e.target.value;save()}},h("option",{value:""},"하위주제 선택…"),
+        themeSubs.map(x=>h("option",{value:x,selected:g.sub===x?true:null},x)));
+      return h("div",{class:"gcard"},
+        h("div",{},h("h3",{},s.label,h("span",{},s.who)),h("ul",{class:"codelist"},codes.length?codes.map(([ui,c])=>h("li",{},`${CIRC[ui]||ui+1} ${c}`)):h("li",{class:"none"},"아직 붙인 코드가 없습니다. 2단계에서 샘플 3을 먼저 코딩해 보세요."))),
+        h("div",{class:"gform"},sel,h("textarea",{id:`why-${s.id}`,placeholder:"함께 묶는 이유 (어떤 코드들이 무엇을 공유하나?)",oninput:e=>{g.why=e.target.value;save()}},g.why)));
+    })),
+    shareAndCompare("groups"));
+}
+
+// ---------- 4. 모두의 코드 비교 (서버 게시판) ----------
+let shares=[],boardStatus="불러오는 중…",boardSid="warm",pollT=null,boardBody=null;
+const ADMIN=new URLSearchParams(location.search).get("admin");
+function snapshotMine(){
+  const s=byId.s3;
+  return {warm:state.warm.code.trim(),s3:{codes:s.units.map((_,k)=>{const u=myUnitFor("s3",k);return (codeOf("s3",u[0]).code||"").trim()}),sub:state.s.s3.sub,why:state.s.s3.why.trim()}};
+}
+async function upload(msg){
+  try{
+    const r=await fetch("/api/board",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:state.me,data:snapshotMine()})});
+    if(!r.ok)throw new Error(r.status);
+    if(msg)msg.textContent="올렸습니다.";await loadBoard();return true;
+  }catch(e){if(msg)msg.textContent="올리지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.";return false}
+}
+async function loadBoard(){
+  try{const r=await fetch("/api/board",{cache:"no-store"});if(!r.ok)throw new Error(r.status);
+    shares=(await r.json()).shares||[];boardStatus="ok"}
+  catch(e){boardStatus="게시판을 불러오지 못했습니다. 잠시 후 저절로 다시 시도합니다."}
+  if(tab==="board")drawBoard();
+}
+function startPoll(){if(pollT)return;loadBoard();pollT=setInterval(loadBoard,4000)}
+function stopPoll(){clearInterval(pollT);pollT=null}
+
+const BOARD_VIEWS=[["warm","① 같은 문장, 다른 이름"],["codes","② 1차 코드"],["groups","③ 하위주제로 묶인 코드"]];
+function viewBoard(){
+  boardBody=h("div",{});
+  const msg=h("span",{class:"hint",role:"status"});
+  const up=h("button",{class:"btn accent",onclick:async()=>{up.disabled=true;msg.textContent="올리는 중…";await upload(msg);up.disabled=false}},"내 최신 내용 다시 올리기");
+  const del=h("button",{class:"btn",onclick:async()=>{try{await fetch("/api/board",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:state.me})});msg.textContent="내 내용을 게시판에서 내렸습니다.";loadBoard()}catch(e){msg.textContent="내리지 못했습니다."}}},"게시판에서 내리기");
+  const sec=h("section",{},
+    h("h2",{},"모두의 코드 비교"),
+    h("p",{class:"lede"},"각 단계 끝의 ‘게시판에 올리고 모두와 비교하기’를 누르면 그때까지 한 내용이 내 이름으로 올라옵니다. 다시 누르면 내 것만 새 내용으로 바뀝니다. 화면은 몇 초마다 저절로 새로 고쳐집니다."),
+    h("div",{class:"share-box"},up,del,msg));
+  if(ADMIN){
+    const box=h("span",{});
+    const ask=()=>box.replaceChildren(h("span",{class:"inline-confirm"},"게시판의 모든 내용을 지울까요?",
+      h("button",{class:"small-btn",onclick:async()=>{const r=await fetch("/api/board",{method:"DELETE",headers:{"Content-Type":"application/json","x-admin-key":ADMIN},body:JSON.stringify({all:true})});msg.textContent=r.ok?"게시판을 비웠습니다.":"관리자 키가 맞지 않습니다.";draw();loadBoard()}},"모두 지우기"),
+      h("button",{class:"small-btn",onclick:()=>draw()},"취소")));
+    const draw=()=>box.replaceChildren(h("button",{class:"btn",onclick:ask},"게시판 비우기(발표자)"));
+    draw();sec.append(h("div",{class:"share-box"},box));
+  }
+  sec.append(h("div",{class:"toolbar"},h("div",{class:"seg",role:"group","aria-label":"볼 화면"},
+    BOARD_VIEWS.map(([id,l])=>h("button",{"aria-pressed":String(boardSid===id),onclick:()=>{boardSid=id;render()}},l)))));
+  sec.append(boardBody);
+  drawBoard();
+  return sec;
+}
+function drawBoard(){
+  if(!boardBody)return;
+  const isMe=x=>x.name===state.me;
+  const chip=(x,text)=>h("span",{class:"name"+(isMe(x)?" me":"")},text,h("small",{},isMe(x)?"나":x.name));
+  const out=[];
+  if(boardStatus!=="ok")out.push(h("div",{class:"status"},boardStatus));
+  out.push(h("p",{class:"hint"},`올린 사람 ${shares.length}명 / ${ROSTER.length}명`));
+  const s=byId.s3;
+  if(boardSid==="warm"){
+    const list=shares.filter(x=>x.warm);
+    out.push(h("div",{class:"board-unit"},h("div",{class:"src"},"“그러면 ‘자기가 살아있다’라는? ‘사람대접을 받는다’라는? 누군가 나를 알아주고, 찾아주고, 인정해주는 그게 있으니까요.”"),
+      h("div",{class:"names"},list.length?list.map(x=>chip(x,x.warm)):h("span",{class:"hint"},"아직 올라온 이름이 없습니다."))));
+  }else if(boardSid==="codes"){
+    s.units.forEach((u,k)=>{const list=shares.filter(x=>x.s3&&x.s3.codes&&x.s3.codes[k]);
+      out.push(h("div",{class:"board-unit"},h("div",{class:"src"},h("span",{class:"num"},CIRC[k]),u),
+        h("div",{class:"names"},list.length?list.map(x=>chip(x,x.s3.codes[k])):h("span",{class:"hint"},"아직 올라온 코드가 없습니다."))))});
+  }else{
+    // 하위주제별로: 누가 어떤 1차 코드들을 그 하위주제로 묶었나
+    const people=shares.filter(x=>x.s3&&x.s3.codes&&x.s3.codes.some(Boolean));
+    out.push(h("p",{class:"hint",style:"margin:0 0 10px"},"상위주제 "+THEMES[4][0]));
+    [...THEMES[4][1],""].forEach(g=>{
+      const list=people.filter(x=>(x.s3.sub||"")===g);
+      if(!g&&!list.length)return;
+      out.push(h("div",{class:"board-unit"},
+        h("div",{class:"src",style:"color:var(--accent);font-family:var(--f-body);font-weight:600"},g||"아직 하위주제를 고르지 않음",h("span",{class:"hint",style:"margin-left:8px;font-weight:400"},`${list.length}명`)),
+        list.length?h("div",{class:"bundles"},list.map(x=>h("div",{class:"bundle"+(isMe(x)?" me":"")},
+          h("div",{class:"lbl"},isMe(x)?`${x.name} (나)`:x.name),
+          h("ul",{class:"codelist"},x.s3.codes.map((c,k)=>c?h("li",{},`${CIRC[k]} ${c}`):null)),
+          x.s3.why?h("p",{class:"why"},x.s3.why):null))):h("span",{class:"hint"},"아직 없습니다.")));
+    });
+  }
+  boardBody.replaceChildren(...out);
+}
+
+render();
+</script>
+</body>
+</html>
