@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>깃발 달기 실습실</title>
+<title>코딩연습실</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
@@ -118,6 +118,13 @@ details.memo textarea{margin-top:6px}
 .bundle{border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .bundle.me{border-color:var(--accent)}
 .bundle .why{margin:0;font-size:13px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--head);color:var(--head-fg);font-weight:600;font-size:13px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.missing td{color:var(--muted)}
+td .u+.u{margin-top:6px}
 .status{font-size:13px;padding:8px 12px;border-radius:6px;background:var(--panel);border:1px solid var(--line);margin-bottom:12px}
 .share-box{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
 footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:right;line-height:1.7}
@@ -147,14 +154,14 @@ footer{margin-top:28px;font-size:12px;color:var(--muted);text-align:right;line-h
   <header class="top">
     <div>
       <div class="eyebrow">질적 자료의 분석 · <b>1차 코딩 실습 · 2차 코딩 실습(하위주제로 묶기)</b></div>
-      <h1>깃발 달기 실습실</h1>
+      <h1>코딩연습실</h1>
       <p class="rq"><b>연구질문</b>은퇴 후 사회참여 과정의 경험은 어떠한가?</p>
     </div>
     <div class="me-chip" id="me" hidden></div>
   </header>
 
   <nav class="steps" role="tablist" id="tabs" hidden>
-    <button role="tab" data-tab="warm"><span class="n">1</span>같은 문장, 다른 이름</button>
+    <button role="tab" data-tab="warm"><span class="n">1</span>같은 문장, 다른 코드 붙이기</button>
     <button role="tab" data-tab="practice"><span class="n">2</span>1차 코딩 실습</button>
     <button role="tab" data-tab="group"><span class="n">3</span>2차 코딩 실습(하위주제로 묶기)</button>
     <button role="tab" data-tab="board"><span class="n">4</span>모두의 코드 비교</button>
@@ -204,7 +211,11 @@ const GROUPS = [
   ["5조",["권서영","임주형"]],
   ["6조",["이시후","현승빈"]],
 ];
-const ROSTER = GROUPS.flatMap(([,names])=>names);
+const STUDENTS = GROUPS.flatMap(([,names])=>names);
+// 발표자도 학생처럼 코드를 올려 게시판에 함께 보인다(학생 수에는 넣지 않음)
+const PRESENTER = "발표자";
+const ROSTER = [...STUDENTS, PRESENTER];
+const teamOf = n => (GROUPS.find(([,names])=>names.includes(n))||[n===PRESENTER?"발표자":""])[0];
 
 // ---------- 상태 (이 브라우저에만 저장) ----------
 const KEY="flag-coding-lab-site-v1";
@@ -242,7 +253,7 @@ function viewGate(){
   return h("section",{class:"gate"},
     h("h2",{},"내 이름을 눌러 들어오세요"),
     h("p",{class:"lede"},"고른 이름은 ‘모두의 코드 비교’ 게시판에 표시됩니다. 작업 내용은 이 기기의 브라우저에 저장되니, 한 사람이 기기 하나로 들어옵니다."),
-    GROUPS.map(([g,names])=>h("div",{class:"team"},h("div",{class:"lbl"},g),
+    [...GROUPS,["발표자",[PRESENTER]]].map(([g,names])=>h("div",{class:"team"},h("div",{class:"lbl"},g),
       h("div",{class:"roster"},names.map(n=>h("button",{onclick:()=>{state.me=n;save();tab="warm";render();window.scrollTo({top:0})}},n))))));
 }
 // 단계 끝 버튼: 지금까지 한 것을 올리고 게시판의 해당 화면으로 이동
@@ -260,7 +271,7 @@ function shareAndCompare(view,label){
 function viewWarm(){
   const w=state.warm;
   return h("section",{},
-    h("h2",{},"같은 문장, 다른 이름?"),
+    h("h2",{},"같은 문장, 다른 코드 붙이기"),
     h("p",{class:"lede"},"굵은 문장 하나에 이름을 하나만 붙여 보세요(앞 문장은 맥락). 그다음 옆 사람의 이름과 비교해 봅니다."),
     h("div",{class:"warm"},
       h("div",{},
@@ -396,7 +407,12 @@ let shares=[],boardStatus="불러오는 중…",boardSid="warm",pollT=null,board
 const ADMIN=new URLSearchParams(location.search).get("admin");
 function snapshotMine(){
   const s=byId.s3;
-  return {warm:state.warm.code.trim(),s3:{codes:s.units.map((_,k)=>{const u=myUnitFor("s3",k);return (codeOf("s3",u[0]).code||"").trim()}),sub:state.s.s3.sub,why:state.s.s3.why.trim()}};
+  const mine=s.units.map((_,k)=>{const u=myUnitFor("s3",k);return {u,c:codeOf("s3",u[0])}});
+  return {warm:state.warm.code.trim(),s3:{
+    codes:mine.map(x=>(x.c.code||"").trim()),
+    phrases:mine.map(x=>phraseOf("s3",x.u)),
+    memos:mine.map(x=>(x.c.memo||"").trim()),
+    sub:state.s.s3.sub,why:state.s.s3.why.trim()}};
 }
 async function upload(msg){
   try{
@@ -414,7 +430,7 @@ async function loadBoard(){
 function startPoll(){if(pollT)return;loadBoard();pollT=setInterval(loadBoard,4000)}
 function stopPoll(){clearInterval(pollT);pollT=null}
 
-const BOARD_VIEWS=[["warm","① 같은 문장, 다른 이름"],["codes","② 1차 코드"],["groups","③ 하위주제로 묶인 코드"]];
+const BOARD_VIEWS=[["warm","① 같은 문장, 다른 코드 붙이기"],["codes","② 1차 코드"],["groups","③ 하위주제로 묶인 코드"],...(ADMIN?[["all","④ 사람별 전체 보기(발표자)"]]:[])];
 function viewBoard(){
   boardBody=h("div",{});
   const msg=h("span",{class:"hint",role:"status"});
@@ -444,9 +460,11 @@ function drawBoard(){
   const chip=(x,text)=>h("span",{class:"name"+(isMe(x)?" me":"")},text,h("small",{},isMe(x)?"나":x.name));
   const out=[];
   if(boardStatus!=="ok")out.push(h("div",{class:"status"},boardStatus));
-  out.push(h("p",{class:"hint"},`올린 사람 ${shares.length}명 / ${ROSTER.length}명`));
+  out.push(h("p",{class:"hint"},`올린 학생 ${shares.filter(x=>STUDENTS.includes(x.name)).length}명 / ${STUDENTS.length}명`));
   const s=byId.s3;
-  if(boardSid==="warm"){
+  if(boardSid==="all"&&ADMIN){
+    out.push(...viewAllPeople());
+  }else if(boardSid==="warm"){
     const list=shares.filter(x=>x.warm);
     out.push(h("div",{class:"board-unit"},h("div",{class:"src"},"“그러면 ‘자기가 살아있다’라는? ‘사람대접을 받는다’라는? 누군가 나를 알아주고, 찾아주고, 인정해주는 그게 있으니까요.”"),
       h("div",{class:"names"},list.length?list.map(x=>chip(x,x.warm)):h("span",{class:"hint"},"아직 올라온 이름이 없습니다."))));
@@ -470,6 +488,34 @@ function drawBoard(){
     });
   }
   boardBody.replaceChildren(...out);
+}
+// 발표자용: 명단 순서대로 한 사람씩, 올린 내용 전체(밑줄·메모 포함)와 안 올린 사람
+function viewAllPeople(){
+  const byName=Object.fromEntries(shares.map(x=>[x.name,x]));
+  const time=t=>t?new Date(t).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"}):"";
+  const rows=ROSTER.map(n=>{
+    const x=byName[n],d=x&&x.s3||{};
+    if(!x)return h("tr",{class:"missing"},h("td",{},teamOf(n)),h("td",{},n),h("td",{colspan:"5"},"아직 올리지 않음"));
+    const units=byId.s3.units.map((_,k)=>(d.codes||[])[k]?h("div",{class:"u"},
+      h("b",{},`${CIRC[k]} ${d.codes[k]}`),
+      (d.phrases||[])[k]?h("div",{class:"hint"},`밑줄: ${d.phrases[k]}`):null,
+      (d.memos||[])[k]?h("div",{class:"hint"},`메모: ${d.memos[k]}`):null):null).filter(Boolean);
+    return h("tr",{},h("td",{},teamOf(n)),h("td",{},h("b",{},n),h("div",{class:"hint"},time(x.at))),
+      h("td",{},x.warm||"—"),h("td",{},units.length?units:"—"),h("td",{},d.sub||"—"),h("td",{},d.why||"—"));
+  });
+  const csvBtn=h("button",{class:"btn",onclick:()=>{
+    const head=["조","이름","올린 시각","같은 문장 코드",...byId.s3.units.flatMap((_,k)=>[`${CIRC[k]} 1차 코드`,`${CIRC[k]} 밑줄`,`${CIRC[k]} 메모`]),"하위주제","묶은 이유"];
+    const lines=[head,...ROSTER.map(n=>{const x=byName[n]||{},d=x.s3||{};
+      return [teamOf(n),n,x.at?new Date(x.at).toLocaleString("ko-KR"):"아직 올리지 않음",x.warm||"",
+        ...byId.s3.units.flatMap((_,k)=>[(d.codes||[])[k]||"",(d.phrases||[])[k]||"",(d.memos||[])[k]||""]),d.sub||"",d.why||""]})];
+    const csv="﻿"+lines.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+    const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    const a=h("a",{href:url,download:"코딩연습실_전체결과.csv"});document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000)}},"전체 결과 CSV로 저장");
+  return [h("div",{class:"share-box"},csvBtn),
+    h("div",{class:"tbl-wrap"},h("table",{},
+      h("thead",{},h("tr",{},["조","이름","같은 문장 코드","1차 코드 · 밑줄 · 메모","하위주제","묶은 이유"].map(t=>h("th",{},t)))),
+      h("tbody",{},rows)))];
 }
 
 render();
