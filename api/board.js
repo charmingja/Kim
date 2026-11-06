@@ -35,11 +35,14 @@ module.exports = async (req, res) => {
       if (!name) return res.status(400).json({ error: "no_name" });
       const d = b.data || {};
       const s3 = d.s3 || {};
+      const list = (a, n) => (Array.isArray(a) ? a : []).slice(0, 10).map(c => clip(c, n));
       const clean = {
         at: new Date().toISOString(),
         warm: clip(d.warm, 80),
         s3: {
-          codes: (Array.isArray(s3.codes) ? s3.codes : []).slice(0, 10).map(c => clip(c, 80)),
+          codes: list(s3.codes, 80),
+          phrases: list(s3.phrases, 200),
+          memos: list(s3.memos, 400),
           sub: clip(s3.sub, 80),
           why: clip(s3.why, 400),
         },
